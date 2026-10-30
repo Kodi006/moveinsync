@@ -2,6 +2,7 @@ package com.moveinsync.roster;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Application entry point.
@@ -10,11 +11,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * {@code @EnableAutoConfiguration}, and {@code @ComponentScan}.  It scans every
  * sub-package of {@code com.moveinsync.roster} for Spring-managed beans.
  *
- * <p>Note: {@code @EnableScheduling} is added in Commit 3 when the outbox poller
- * is introduced.  Adding it here prematurely would have no effect but would
- * generate a noisy log line on every startup.
+ * <p>{@code @EnableScheduling} activates the outbox poller introduced in Commit 3.
  */
 @SpringBootApplication
+@EnableScheduling
 public class RosterApplication {
 
     public static void main(String[] args) {

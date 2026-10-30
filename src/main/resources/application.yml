@@ -23,6 +23,9 @@ management:
 # missing / activeInStore > 0.30  → abort and require operator approval.
 # min-row-floor: abort if the export file has fewer rows than this.
 roster:
+  outbox:
+    batch-size: 100
+    poll-interval-ms: 5000
   reconciliation:
     safety-brake-threshold: 0.30
     min-row-floor: 1000
