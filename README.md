@@ -42,3 +42,24 @@ expire-after-write TTL. A read can be stale for up to 30 seconds after a databas
 made outside this application instance; writes made through this instance evict the
 entry after commit. The cache does not participate in version checks, idempotency, or
 reconciliation decisions, so removing it changes read performance only.
+
+## Run the application
+
+With Docker and the Compose plugin installed, start Postgres and the app with:
+
+```sh
+docker compose up
+```
+
+The API listens on `http://localhost:8080`. The Compose file supplies development-only
+API keys `admin` and `operator` for tenant `demo-tenant`; send them in the `X-API-Key`
+header. Replace those keys and database credentials for any shared deployment.
+
+For a no-Docker run, start the app with the H2 profile:
+
+```sh
+mvn spring-boot:run -Dspring-boot.run.profiles=h2
+```
+
+Configure API keys with `ROSTER_SECURITY_APIKEYS_<KEY>` environment variables whose
+values are `<tenant-id>:ADMIN` or `<tenant-id>:OPERATOR`.

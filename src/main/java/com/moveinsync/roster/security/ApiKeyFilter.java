@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Locale;
 
 @Component
 @Order(1)
@@ -51,6 +52,10 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         if (apiKey == null || apiKey.isBlank()) return null;
         // API keys map to tenant:role. A JWT resolver can replace this lookup in the same filter.
         String mapping = environment.getProperty("roster.security.api-keys." + apiKey);
+        if (mapping == null) {
+            String envName = "ROSTER_SECURITY_APIKEYS_" + apiKey.replace("-", "").toUpperCase(Locale.ROOT);
+            mapping = environment.getProperty(envName);
+        }
         if (mapping == null) return null;
         int separator = mapping.lastIndexOf(':');
         if (separator <= 0 || separator == mapping.length() - 1) return null;

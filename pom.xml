@@ -82,8 +82,8 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
-            <!-- In-memory database for integration tests; Postgres for production -->
+            <scope>runtime</scope>
+            <!-- Test database and optional no-Docker runtime profile -->
         </dependency>
 
     </dependencies>

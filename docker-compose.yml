@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: roster
+      POSTGRES_USER: roster
+      POSTGRES_PASSWORD: roster
+    ports:
+      - "5432:5432"
+    volumes:
+      - roster-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U roster -d roster"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/roster
+      SPRING_DATASOURCE_USERNAME: roster
+      SPRING_DATASOURCE_PASSWORD: roster
+      ROSTER_SECURITY_APIKEYS_ADMIN: "demo-tenant:ADMIN"
+      ROSTER_SECURITY_APIKEYS_OPERATOR: "demo-tenant:OPERATOR"
+    ports:
+      - "8080:8080"
+
+volumes:
+  roster-data:
