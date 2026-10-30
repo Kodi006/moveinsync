@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-public class ReconciliationService {
+public class ReconciliationService implements ReconciliationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(ReconciliationService.class);
 
@@ -67,6 +67,7 @@ public class ReconciliationService {
     }
 
     /** Streams the export twice; no employee rows from the export are accumulated in memory. */
+    @Override
     public ReconciliationResult reconcile(String tenantId, Path exportFile) throws IOException {
         Timer.Sample sample = Timer.start(meterRegistry);
         try {

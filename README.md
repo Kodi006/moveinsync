@@ -51,6 +51,15 @@ curl -s -X POST http://localhost:8080/api/v1/reconciliation/runs/1/approve \
 Health and Prometheus metrics are available at `/actuator/health` and
 `/actuator/prometheus`.
 
+### Nightly reconciliation
+
+Compose mounts `./data` read-only at `/data` and checks `/data/roster.csv` for
+`demo-tenant` daily at 02:00 UTC. Put the CSV there before the scheduled run. Override
+`ROSTER_EXPORT_DIR`, `ROSTER_RECONCILIATION_EXPORT_PATH`,
+`ROSTER_RECONCILIATION_TENANT_ID`, or `ROSTER_RECONCILIATION_CRON` in the environment
+to select another mount, file, tenant, or schedule. Outside Compose, both tenant ID and
+export path must be configured to activate the scheduled job.
+
 ## Assumptions and scope
 
 - The API accepts batches of events, not a bulk employee import endpoint. The

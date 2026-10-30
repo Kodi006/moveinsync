@@ -26,8 +26,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: roster
       ROSTER_SECURITY_APIKEYS_ADMIN: "demo-tenant:ADMIN"
       ROSTER_SECURITY_APIKEYS_OPERATOR: "demo-tenant:OPERATOR"
+      ROSTER_RECONCILIATION_TENANT_ID: "${ROSTER_RECONCILIATION_TENANT_ID:-demo-tenant}"
+      ROSTER_RECONCILIATION_EXPORT_PATH: "${ROSTER_RECONCILIATION_EXPORT_PATH:-/data/roster.csv}"
     ports:
       - "8080:8080"
+    volumes:
+      - "${ROSTER_EXPORT_DIR:-./data}:/data:ro"
 
 volumes:
   roster-data:

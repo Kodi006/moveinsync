@@ -29,3 +29,6 @@ roster:
   reconciliation:
     safety-brake-threshold: 0.30
     min-row-floor: 1000
+    cron: "${ROSTER_RECONCILIATION_CRON:0 0 2 * * *}"
+    tenant-id: "${ROSTER_RECONCILIATION_TENANT_ID:}"
+    export-path: "${ROSTER_RECONCILIATION_EXPORT_PATH:}"
