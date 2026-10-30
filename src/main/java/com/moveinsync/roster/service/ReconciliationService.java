@@ -246,10 +246,10 @@ public class ReconciliationService {
             if (row == null) return;
             boolean existed = storedHashes.containsKey(row.employeeId());
             String originalHash = storedHashes.get(row.employeeId());
+            if (existed && row.contentHash().equals(originalHash)) return;
             var current = employees.findById(tenantId, row.employeeId());
             if (existed) {
                 if (current.isEmpty() || !java.util.Objects.equals(current.get().hrContentHash(), originalHash)) return;
-                if (row.contentHash().equals(originalHash)) return;
             } else if (current.isPresent()) {
                 return; // A concurrent insert won after the preflight scan.
             }
