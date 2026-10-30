@@ -1,0 +1,40 @@
+# ── Test datasource ──────────────────────────────────────────────────────
+# This file overrides application.yml for the test classpath.
+# H2 in PostgreSQL-compatibility mode is used so Flyway migrations written
+# for PostgreSQL run identically in tests without Docker or a running Postgres.
+#
+# KEY H2 URL OPTIONS:
+#   MODE=PostgreSQL            — enables PG syntax (NOW(), TIMESTAMP WITH TIME ZONE,
+#                                GENERATED ALWAYS AS IDENTITY, etc.)
+#   DATABASE_TO_LOWER=TRUE     — table/column names are lowercased (PG default)
+#   DEFAULT_NULL_ORDERING=HIGH — NULLs sort last (PG default)
+
+spring:
+  application:
+    name: roster-sync-test
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  main:
+    banner-mode: "off"
+
+# Suppress the Prometheus endpoint in tests — no scraper is present.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  metrics:
+    export:
+      prometheus:
+        enabled: false
+
+roster:
+  reconciliation:
+    safety-brake-threshold: 0.30
+    min-row-floor: 1000

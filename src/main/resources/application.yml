@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: roster-sync
+  datasource:
+    url: jdbc:postgresql://localhost:5432/roster
+    username: roster
+    password: roster
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Reconciliation safety brake (Commit 5).
+# missing / activeInStore > 0.30  → abort and require operator approval.
+# min-row-floor: abort if the export file has fewer rows than this.
+roster:
+  reconciliation:
+    safety-brake-threshold: 0.30
+    min-row-floor: 1000
