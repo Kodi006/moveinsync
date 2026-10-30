@@ -1,4 +1,4 @@
 package com.moveinsync.roster.api;
 
-public record ApprovalRequest(String tenantId, String operatorId) {
+public record ApprovalRequest(String operatorId) {
 }

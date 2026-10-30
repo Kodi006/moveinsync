@@ -60,13 +60,22 @@ class ReconciliationApprovalControllerTest {
         assertThat(run.status()).isEqualTo("BLOCKED_SAFETY_BRAKE");
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM employee WHERE tenant_id = 'tenant-approval' AND status = 'INACTIVE'", Integer.class)).isZero();
 
-        mvc.perform(get("/api/v1/reconciliation/runs").param("tenantId", "tenant-approval"))
+        mvc.perform(get("/api/v1/reconciliation/runs").header("X-API-Key", "approval-admin"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].status").value("BLOCKED_SAFETY_BRAKE"));
 
         mvc.perform(post("/api/v1/reconciliation/runs/{id}/approve", run.runId())
+                        .header("X-API-Key", "approval-admin")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new ApprovalRequest("tenant-approval", "operator-1"))))
+                        .content(objectMapper.writeValueAsString(new ApprovalRequest("admin-1"))))
+                .andExpect(status().isForbidden());
+        assertThat(jdbc.queryForObject("SELECT status FROM reconciliation_run WHERE id = ?", String.class, run.runId()))
+                .isEqualTo("BLOCKED_SAFETY_BRAKE");
+
+        mvc.perform(post("/api/v1/reconciliation/runs/{id}/approve", run.runId())
+                        .header("X-API-Key", "approval-operator")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ApprovalRequest("operator-1"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.deactivatedCount").value(2))
                 .andExpect(jsonPath("$.skippedCount").value(0));

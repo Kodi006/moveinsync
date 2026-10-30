@@ -2,6 +2,7 @@ package com.moveinsync.roster.api;
 
 import com.moveinsync.roster.domain.Decision;
 import com.moveinsync.roster.domain.RosterEvent;
+import com.moveinsync.roster.security.TenantContext;
 import com.moveinsync.roster.service.RosterIngestService;
 import com.moveinsync.roster.validation.RecordValidator;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,9 @@ public class IngestController {
                 request.eventType(), request.payload());
         if (!validation.valid()) {
             return new RecordIngestResult(request.employeeId(), "REJECTED", validation.reason());
+        }
+        if (!TenantContext.current().tenantId().equals(request.tenantId())) {
+            return new RecordIngestResult(request.employeeId(), "REJECTED", "TENANT_MISMATCH");
         }
         try {
             RosterEvent event = request.toDomainEvent();

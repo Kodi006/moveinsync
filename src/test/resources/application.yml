@@ -37,6 +37,13 @@ management:
 roster:
   outbox:
     poll-interval-ms: 60000
+  security:
+    api-keys:
+      api-admin: "tenant-api:ADMIN"
+      approval-admin: "tenant-approval:ADMIN"
+      approval-operator: "tenant-approval:OPERATOR"
+      tenant-a-admin: "tenant-a:ADMIN"
+      tenant-b-admin: "tenant-b:ADMIN"
   reconciliation:
     safety-brake-threshold: 0.30
     min-row-floor: 1000

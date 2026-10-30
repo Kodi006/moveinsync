@@ -44,6 +44,7 @@ class IngestControllerTest {
                 event("employee-5", Map.of("name", "Bad Office", "email", "five@example.test", "officeCode", "XXX"))));
 
         mvc.perform(post("/api/v1/roster/events")
+                        .header("X-API-Key", "api-admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(batch)))
                 .andExpect(status().isOk())

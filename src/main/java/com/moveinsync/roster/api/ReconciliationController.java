@@ -1,6 +1,8 @@
 package com.moveinsync.roster.api;
 
 import com.moveinsync.roster.service.ReconciliationApprovalService;
+import com.moveinsync.roster.security.Role;
+import com.moveinsync.roster.security.TenantContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -26,16 +27,18 @@ public class ReconciliationController {
     }
 
     @GetMapping
-    public List<ReconciliationApprovalService.ReconciliationRunView> listRuns(
-            @RequestParam String tenantId) {
-        return approvals.listRuns(tenantId);
+    public List<ReconciliationApprovalService.ReconciliationRunView> listRuns() {
+        return approvals.listRuns(TenantContext.current().tenantId());
     }
 
     @PostMapping("/{id}/approve")
     public ReconciliationApprovalService.ApprovalResult approve(
             @PathVariable long id, @RequestBody ApprovalRequest request) {
-        // TODO Commit 9: enforce OPERATOR role after resolving tenant and role from API key.
-        return approvals.approve(request.tenantId(), id, request.operatorId());
+        // Operator identity is request data here; role and tenant come only from the API key.
+        if (TenantContext.current().role() != Role.OPERATOR) {
+            throw new ForbiddenOperationException();
+        }
+        return approvals.approve(TenantContext.current().tenantId(), id, request.operatorId());
     }
 
     @ExceptionHandler(ReconciliationApprovalService.RunNotApprovableException.class)
@@ -43,4 +46,11 @@ public class ReconciliationController {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", "RUN_NOT_APPROVABLE"));
     }
+
+    @ExceptionHandler(ForbiddenOperationException.class)
+    public ResponseEntity<Map<String, String>> forbidden() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "FORBIDDEN"));
+    }
+
+    private static class ForbiddenOperationException extends RuntimeException { }
 }
