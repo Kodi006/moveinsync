@@ -22,7 +22,7 @@ import java.util.Optional;
 @Service
 public class RosterIngestService {
 
-    private static final int MAX_RETRIES = 5;
+    private static final int MAX_RETRIES = 100;
 
     private final EmployeeRepository repo;
     private final RosterEventApplier applier;

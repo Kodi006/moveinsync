@@ -35,6 +35,8 @@ management:
         enabled: false
 
 roster:
+  outbox:
+    poll-interval-ms: 60000
   reconciliation:
     safety-brake-threshold: 0.30
     min-row-floor: 1000
