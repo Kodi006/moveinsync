@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10251f">
+  <meta name="description" content="MoveInSync roster operations dashboard">
+  <title>Roster Console · MoveInSync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview" aria-label="MoveInSync roster home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-copy"><strong>moveinsync</strong><small>ROSTER CONSOLE</small></span>
+      </a>
+
+      <div class="workspace-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <button class="nav-link active" data-page="overview"><span class="nav-icon">⌂</span>Overview</button>
+        <button class="nav-link" data-page="employees"><span class="nav-icon">♙</span>Employees</button>
+        <button class="nav-link" data-page="ingest"><span class="nav-icon">⇧</span>Ingest events</button>
+        <button class="nav-link" data-page="reconciliation"><span class="nav-icon">⟳</span>Reconciliation</button>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-note">
+        <span class="note-orb">✦</span>
+        <strong>Reliable by design</strong>
+        <p>Versioned updates keep every roster in sync, even when events arrive out of order.</p>
+        <a href="/actuator/health" target="_blank" rel="noreferrer">View service health <span>↗</span></a>
+      </div>
+      <div class="sidebar-footer"><span class="mini-mark">M</span><span>MoveInSync · Case Study 5</span></div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Toggle navigation">☰</button>
+        <div class="breadcrumbs"><span>Roster operations</span><b>/</b><strong id="page-title">Overview</strong></div>
+        <div class="topbar-right">
+          <div class="service-status" id="service-status"><span class="status-dot"></span><span id="service-status-label">Checking service</span></div>
+          <button class="avatar-button" id="open-settings" aria-label="Configure API key" title="API key settings"><span>↗</span></button>
+        </div>
+      </header>
+
+      <div class="content-wrap">
+        <section class="page active" id="page-overview">
+          <div class="welcome-row">
+            <div><div class="eyebrow"><span class="eyebrow-line"></span>ROSTER OPERATIONS</div>
+              <h1>Good work starts<br><span>with a synced team.</span></h1>
+              <p class="lead">A clear view of employee data flowing across HR and transport.</p>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <div class="hero-sun"></div><div class="hero-ring ring-one"></div><div class="hero-ring ring-two"></div>
+              <div class="hero-card card-back"><span>HR</span><i>↗</i></div>
+              <div class="hero-card card-front"><span class="card-avatar">✦</span><span><b>Roster sync</b><small>Changes applied</small></span><i class="check-icon">✓</i></div>
+              <span class="hero-spark spark-a">✳</span><span class="hero-spark spark-b">✦</span>
+            </div>
+          </div>
+
+          <div class="quick-grid">
+            <button class="quick-card quick-primary" data-go="ingest">
+              <span class="quick-icon">⇧</span><span class="quick-kicker">GET STARTED</span>
+              <strong>Send roster<br>updates</strong><span class="quick-arrow">↗</span>
+            </button>
+            <button class="quick-card" data-go="employees">
+              <span class="quick-icon icon-lime">♙</span><span class="quick-kicker">LOOK UP</span>
+              <strong>Find an<br>employee</strong><span class="quick-arrow">↗</span>
+            </button>
+            <button class="quick-card" data-go="reconciliation">
+              <span class="quick-icon icon-sand">⟳</span><span class="quick-kicker">REVIEW</span>
+              <strong>Reconciliation<br>runs</strong><span class="quick-arrow">↗</span>
+            </button>
+          </div>
+
+          <div class="section-heading"><div><div class="eyebrow">YOUR TOOLKIT</div><h2>Built for dependable updates</h2></div><span class="section-caption">A few useful things to know</span></div>
+          <div class="feature-grid">
+            <article class="feature-card"><span class="feature-number">01</span><div class="feature-icon mint">↕</div><h3>Out-of-order ready</h3><p>Independent HR and transport versions prevent delayed updates from overwriting newer data.</p></article>
+            <article class="feature-card"><span class="feature-number">02</span><div class="feature-icon peach">◈</div><h3>Ownership stays clear</h3><p>HR and transport can update their fields without changing information owned by the other team.</p></article>
+            <article class="feature-card"><span class="feature-number">03</span><div class="feature-icon blue">⛨</div><h3>Tenant scoped</h3><p>Your API key selects the tenant. Employee reads and reconciliation reviews stay in that scope.</p></article>
+          </div>
+          <footer class="page-footer"><span>MoveInSync Roster Sync</span><span>Small changes. A team in sync.</span></footer>
+        </section>
+
+        <section class="page" id="page-employees">
+          <div class="page-intro"><div class="eyebrow"><span class="eyebrow-line"></span>DIRECTORY</div><h1>Employee <span>lookup</span></h1><p class="lead">Find a roster record in the tenant attached to your API key.</p></div>
+          <div class="panel lookup-panel">
+            <div class="panel-heading"><div><span class="panel-icon">♙</span><div><h2>Search employees</h2><p>Look up one employee by their ID.</p></div></div><span class="tag">TENANT SCOPED</span></div>
+            <form id="employee-search" class="search-row"><label class="field grow"><span>Employee ID</span><input id="employee-id" name="employeeId" placeholder="e.g. e-100" autocomplete="off" required></label><button class="button button-dark" type="submit"><span>Search employee</span><b>→</b></button></form>
+            <div id="employee-result" class="result-area empty-state"><span class="empty-symbol">⌕</span><strong>Search for an employee</strong><p>The employee record will appear here.</p></div>
+          </div>
+          <div class="hint-row"><span class="hint-icon">i</span><p>A <code>404</code> means the employee isn’t present in your tenant’s roster.</p></div>
+        </section>
+
+        <section class="page" id="page-ingest">
+          <div class="page-intro"><div class="eyebrow"><span class="eyebrow-line"></span>EVENT PIPELINE</div><h1>Send roster <span>updates</span></h1><p class="lead">Submit a versioned event. The owner decides which fields can change.</p></div>
+          <div class="panel ingest-panel">
+            <div class="panel-heading"><div><span class="panel-icon mint">⇧</span><div><h2>New roster event</h2><p>One event per employee, with a durable owner version.</p></div></div><div class="segmented" role="tablist" aria-label="Event editor"><button class="segment active" data-editor="form" type="button">Build event</button><button class="segment" data-editor="json" type="button">JSON batch</button></div></div>
+            <div id="event-form-editor">
+              <form id="event-form">
+                <div class="form-grid">
+                  <label class="field"><span>Tenant ID</span><input id="event-tenant-id" value="demo-tenant" required><small>Must match the tenant assigned to your API key.</small></label>
+                  <label class="field"><span>Employee ID</span><input id="event-employee-id" placeholder="e.g. e-100" required></label>
+                  <label class="field"><span>Owner</span><select id="event-owner"><option value="HR">HR</option><option value="TRANSPORT">Transport</option></select></label>
+                  <label class="field"><span>Owner version</span><input id="event-version" type="number" min="0" value="1" required><small>Use a higher number for each new update.</small></label>
+                  <label class="field"><span>Event type</span><select id="event-type"><option value="UPSERT">Upsert employee details</option><option value="DEACTIVATE">Deactivate employee</option></select></label>
+                </div>
+                <div class="field-group-label"><span>FIELDS IN THIS UPDATE</span><small>Leave blank to keep the current value.</small></div>
+                <div class="form-grid payload-grid" id="payload-fields"></div>
+                <div class="form-actions"><span class="form-footnote"><span class="tiny-shield">◇</span>Only fields owned by the selected source are applied.</span><button class="button button-green" type="submit">Submit event <b>↗</b></button></div>
+              </form>
+            </div>
+            <div id="json-batch-editor" class="hidden">
+              <label class="field"><span>Batch request JSON</span><textarea id="batch-json" rows="12" spellcheck="false"></textarea><small>Use the API batch format: <code>{ "events": [ ... ] }</code>. Null values clear owned fields.</small></label>
+              <div class="form-actions"><span class="form-footnote"><span class="tiny-shield">◇</span>Each record receives an independent result.</span><button class="button button-green" id="submit-json" type="button">Submit batch <b>↗</b></button></div>
+            </div>
+            <div id="ingest-results" class="result-area hidden"></div>
+          </div>
+          <div class="ownership-strip"><div><span class="owner-pill hr-pill">HR</span><span>Name, email, manager, office, status</span></div><div><span class="owner-pill transport-pill">TRANSPORT</span><span>Pickup point, special assistance</span></div></div>
+        </section>
+
+        <section class="page" id="page-reconciliation">
+          <div class="page-intro"><div class="eyebrow"><span class="eyebrow-line"></span>DATA QUALITY</div><h1>Reconciliation <span>runs</span></h1><p class="lead">Review nightly HR export comparisons and approve safety-brake candidates.</p></div>
+          <div class="recon-banner"><div class="recon-banner-icon">⟳</div><div><strong>Careful by default</strong><p>If too many active employees are missing from an export, no one is deactivated until an operator reviews the run.</p></div><button class="button button-light" id="refresh-runs" type="button">Refresh <span>↻</span></button></div>
+          <div class="panel runs-panel"><div class="panel-heading runs-heading"><div><div><h2>Recent runs</h2><p>Latest reconciliation activity for your tenant.</p></div></div><span class="tag" id="run-count">— RUNS</span></div>
+            <div id="runs-list" class="runs-list"><div class="empty-state"><span class="empty-symbol">⟳</span><strong>Loading reconciliation runs</strong><p>Run history will appear here.</p></div></div>
+          </div>
+          <div class="hint-row"><span class="hint-icon">i</span><p>Approval is available to API keys with the <code>OPERATOR</code> role.</p></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <dialog class="settings-dialog" id="settings-dialog">
+    <form method="dialog" class="dialog-close-row"><button class="icon-button" aria-label="Close">×</button></form>
+    <div class="eyebrow"><span class="eyebrow-line"></span>CONNECTION</div>
+    <h2>Connect your workspace</h2>
+    <p class="dialog-copy">Your API key determines your tenant and permissions. It stays in this browser tab and is sent only to this service.</p>
+    <form id="settings-form">
+      <label class="field"><span>API key</span><input id="api-key" type="password" autocomplete="off" placeholder="Enter your API key" required></label>
+      <div class="key-help"><span>LOCAL DEMO</span><p>For Docker Compose, use <code>admin</code> for roster updates or <code>operator</code> for approvals.</p></div>
+      <div class="dialog-actions"><button class="button button-text" type="button" id="clear-key">Clear key</button><button class="button button-dark" type="submit">Save connection <b>→</b></button></div>
+    </form>
+  </dialog>
+</body>
+</html>

@@ -14,12 +14,16 @@ and the application with:
 docker compose up --build
 ```
 
-The API listens on `http://localhost:8080`. Compose provides development keys `admin`
+The web console and API are available at `http://localhost:8080`. Compose provides development keys `admin`
 and `operator`, both scoped to `demo-tenant`. Use the `X-API-Key` header. For local
 development without Docker, use `mvn spring-boot:run -Dspring-boot.run.profiles=h2`.
 Configure keys as environment variables named `ROSTER_SECURITY_APIKEYS_<KEY>` with
 values `<tenant-id>:ADMIN` or `<tenant-id>:OPERATOR`. Never use the Compose sample keys
 outside local development.
+
+The web console provides employee lookup, event submission (including raw batch JSON),
+reconciliation history, and operator approval. Use the connection button in the upper
+right to enter an API key; it is kept in the current browser tab's session storage.
 
 ## API examples
 
