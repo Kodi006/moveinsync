@@ -27,6 +27,7 @@ class ReconciliationServiceTest {
 
     @BeforeEach
     void clearTables() {
+        jdbc.update("DELETE FROM reconciliation_candidate");
         jdbc.update("DELETE FROM reconciliation_run");
         jdbc.update("DELETE FROM booking");
         jdbc.update("DELETE FROM outbox_event");

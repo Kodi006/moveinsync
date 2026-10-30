@@ -99,6 +99,7 @@ public class ReconciliationService {
                 && ((double) counts.missingCount / counts.activeInStore) > safetyBrakeThreshold) {
             log.warn("Reconciliation blocked by safety brake for tenant {}: {} of {} active rows missing ({}%)",
                     tenantId, counts.missingCount, counts.activeInStore, counts.missingPercentage);
+            saveBlockedCandidates(tenantId, runId, missingIds, storedHashes);
             finishRun(tenantId, runId, "BLOCKED_SAFETY_BRAKE", counts,
                     counts.missingCount, counts.missingPercentage);
             return counts.result(runId, "BLOCKED_SAFETY_BRAKE");
@@ -115,6 +116,24 @@ public class ReconciliationService {
                     counts.missingCount, counts.missingPercentage);
             throw failure;
         }
+    }
+
+    private void saveBlockedCandidates(String tenantId, long runId, List<String> employeeIds,
+                                       Map<String, String> storedHashes) {
+        String sql = """
+                INSERT INTO reconciliation_candidate
+                    (tenant_id, run_id, employee_id, expected_hr_content_hash, status)
+                VALUES (?, ?, ?, ?, 'PENDING')
+                """;
+        List<Object[]> batch = new ArrayList<>(1_000);
+        for (String employeeId : employeeIds) {
+            batch.add(new Object[]{tenantId, runId, employeeId, storedHashes.get(employeeId)});
+            if (batch.size() == 1_000) {
+                jdbc.batchUpdate(sql, batch);
+                batch.clear();
+            }
+        }
+        if (!batch.isEmpty()) jdbc.batchUpdate(sql, batch);
     }
 
     private long startRun(String tenantId) {
