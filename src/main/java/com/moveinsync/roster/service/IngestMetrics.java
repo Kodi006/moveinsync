@@ -33,6 +33,15 @@ public class IngestMetrics {
         increment("roster.events.contention", event);
     }
 
+    public void rejected(String tenantId, FieldOwner owner) {
+        registry.counter("roster.events.rejected", "tenant", safeTenant(tenantId),
+                "owner", owner == null ? "UNKNOWN" : owner.name()).increment();
+    }
+
+    public void error(RosterEvent event) {
+        increment("roster.ingest.errors", event);
+    }
+
     public void strippedFields(int count, RosterEvent event) {
         if (count > 0) {
             registry.counter("roster.events.fields.stripped", tags(event)).increment(count);
@@ -45,6 +54,11 @@ public class IngestMetrics {
 
     private String[] tags(RosterEvent event) {
         // Tenant and owner are operational dimensions; never tag employee data.
-        return new String[]{"tenant", event.tenantId(), "owner", event.owner().name()};
+        return new String[]{"tenant", safeTenant(event.tenantId()), "owner",
+                event.owner() == null ? "UNKNOWN" : event.owner().name()};
+    }
+
+    private String safeTenant(String tenantId) {
+        return tenantId == null || tenantId.isBlank() ? "UNKNOWN" : tenantId;
     }
 }

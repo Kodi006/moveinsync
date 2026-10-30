@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import com.moveinsync.roster.metrics.OutboxMetrics;
 
 import java.util.List;
 
@@ -13,12 +14,15 @@ public class OutboxPoller {
     private final JdbcTemplate jdbc;
     private final ChangeEventPublisher publisher;
     private final int batchSize;
+    private final OutboxMetrics metrics;
 
     public OutboxPoller(JdbcTemplate jdbc, ChangeEventPublisher publisher,
-                        @Value("${roster.outbox.batch-size:100}") int batchSize) {
+                        @Value("${roster.outbox.batch-size:100}") int batchSize,
+                        OutboxMetrics metrics) {
         this.jdbc = jdbc;
         this.publisher = publisher;
         this.batchSize = batchSize;
+        this.metrics = metrics;
     }
 
     @Scheduled(fixedDelayString = "${roster.outbox.poll-interval-ms:5000}")
@@ -56,6 +60,7 @@ public class OutboxPoller {
                         """, event.id());
                 publishedCount++;
             } catch (RuntimeException failure) {
+                metrics.publishError();
                 // Keep exception details out of the database: downstream exception text may contain PII.
                 jdbc.update("""
                         UPDATE outbox_event

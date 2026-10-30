@@ -16,6 +16,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,21 +50,33 @@ public class ReconciliationService {
     private final JdbcTemplate jdbc;
     private final Clock clock;
     private final double safetyBrakeThreshold;
+    private final MeterRegistry meterRegistry;
 
     public ReconciliationService(EmployeeRepository employees, RosterIngestService ingest,
                                  RecordValidator validator, JdbcTemplate jdbc, Clock clock,
                                  @Value("${roster.reconciliation.safety-brake-threshold:0.30}")
-                                 double safetyBrakeThreshold) {
+                                 double safetyBrakeThreshold, MeterRegistry meterRegistry) {
         this.employees = employees;
         this.ingest = ingest;
         this.validator = validator;
         this.jdbc = jdbc;
         this.clock = clock;
         this.safetyBrakeThreshold = safetyBrakeThreshold;
+        this.meterRegistry = meterRegistry;
+        Timer.builder("roster.reconciliation.duration").register(meterRegistry);
     }
 
     /** Streams the export twice; no employee rows from the export are accumulated in memory. */
     public ReconciliationResult reconcile(String tenantId, Path exportFile) throws IOException {
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            return reconcileInternal(tenantId, exportFile);
+        } finally {
+            sample.stop(Timer.builder("roster.reconciliation.duration").register(meterRegistry));
+        }
+    }
+
+    private ReconciliationResult reconcileInternal(String tenantId, Path exportFile) throws IOException {
         long runId = startRun(tenantId);
         // Only IDs and hashes are loaded, never full employee rows. HashMap overhead puts
         // 200k IDs in the tens-of-MB range; beyond roughly 10M employees use a sorted merge-join.

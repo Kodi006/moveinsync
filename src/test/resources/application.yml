@@ -28,11 +28,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
-  metrics:
-    export:
-      prometheus:
-        enabled: false
+        include: health,metrics,prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 roster:
   outbox:

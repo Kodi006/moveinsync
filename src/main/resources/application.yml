@@ -14,9 +14,9 @@ management:
     web:
       exposure:
         include: health,info,prometheus,metrics
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 # Reconciliation safety brake (Commit 5).

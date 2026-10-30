@@ -64,8 +64,12 @@ public class RosterIngestService {
             } catch (CasRetryException e) {
                 // CAS conflict: re-read on the next iteration.
                 metrics.contention(event);
+            } catch (RuntimeException failure) {
+                metrics.error(event);
+                throw failure;
             }
         }
+        metrics.error(event);
         throw new MaxRetriesExceededException(event.tenantId(), event.employeeId());
     }
 

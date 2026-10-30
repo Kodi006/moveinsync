@@ -34,3 +34,11 @@ ingest_throughput_events_per_sec=1866.11
 ingest_p50_ms=0.256
 ingest_p99_ms=3.060
 ```
+
+## Employee read cache
+
+The employee detail read endpoint uses a local Caffeine cache with a 30-second
+expire-after-write TTL. A read can be stale for up to 30 seconds after a database write
+made outside this application instance; writes made through this instance evict the
+entry after commit. The cache does not participate in version checks, idempotency, or
+reconciliation decisions, so removing it changes read performance only.

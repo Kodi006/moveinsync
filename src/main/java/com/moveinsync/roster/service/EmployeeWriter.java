@@ -12,10 +12,12 @@ public class EmployeeWriter {
 
     private final EmployeeRepository repo;
     private final OutboxService outbox;
+    private final EmployeeReadService readCache;
 
-    public EmployeeWriter(EmployeeRepository repo, OutboxService outbox) {
+    public EmployeeWriter(EmployeeRepository repo, OutboxService outbox, EmployeeReadService readCache) {
         this.repo = repo;
         this.outbox = outbox;
+        this.readCache = readCache;
     }
 
     /** Public method on a separate bean ensures the Spring transaction proxy is crossed. */
@@ -31,5 +33,6 @@ public class EmployeeWriter {
             throw new CasRetryException();
         }
         outbox.enqueue(current, newState, event);
+        readCache.evictAfterCommit(newState.tenantId(), newState.employeeId());
     }
 }

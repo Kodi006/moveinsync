@@ -1,7 +1,7 @@
 package com.moveinsync.roster.api;
 
-import com.moveinsync.roster.repo.EmployeeRepository;
 import com.moveinsync.roster.security.TenantContext;
+import com.moveinsync.roster.service.EmployeeReadService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/employees")
 public class EmployeeController {
 
-    private final EmployeeRepository employees;
+    private final EmployeeReadService employees;
 
-    public EmployeeController(EmployeeRepository employees) {
+    public EmployeeController(EmployeeReadService employees) {
         this.employees = employees;
     }
 

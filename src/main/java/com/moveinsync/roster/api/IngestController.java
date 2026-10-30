@@ -4,6 +4,7 @@ import com.moveinsync.roster.domain.Decision;
 import com.moveinsync.roster.domain.RosterEvent;
 import com.moveinsync.roster.security.TenantContext;
 import com.moveinsync.roster.service.RosterIngestService;
+import com.moveinsync.roster.service.IngestMetrics;
 import com.moveinsync.roster.validation.RecordValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,12 @@ public class IngestController {
 
     private final RosterIngestService ingest;
     private final RecordValidator validator;
+    private final IngestMetrics metrics;
 
-    public IngestController(RosterIngestService ingest, RecordValidator validator) {
+    public IngestController(RosterIngestService ingest, RecordValidator validator, IngestMetrics metrics) {
         this.ingest = ingest;
         this.validator = validator;
+        this.metrics = metrics;
     }
 
     @PostMapping
@@ -47,9 +50,11 @@ public class IngestController {
                 request.tenantId(), request.employeeId(), request.owner(), request.version(),
                 request.eventType(), request.payload());
         if (!validation.valid()) {
+            metrics.rejected(TenantContext.current().tenantId(), request.owner());
             return new RecordIngestResult(request.employeeId(), "REJECTED", validation.reason());
         }
         if (!TenantContext.current().tenantId().equals(request.tenantId())) {
+            metrics.rejected(TenantContext.current().tenantId(), request.owner());
             return new RecordIngestResult(request.employeeId(), "REJECTED", "TENANT_MISMATCH");
         }
         try {
@@ -58,6 +63,7 @@ public class IngestController {
             return new RecordIngestResult(request.employeeId(), decision.name(), null);
         } catch (RuntimeException failure) {
             // Keep one record's processing failure from aborting the rest of the batch.
+            metrics.rejected(TenantContext.current().tenantId(), request.owner());
             return new RecordIngestResult(request.employeeId(), "REJECTED", "PROCESSING_ERROR");
         }
     }
