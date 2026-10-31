@@ -73,6 +73,10 @@ export path must be configured to activate the scheduled job.
   `pickupPoint` and `specialAssistance`. Fields owned by another sender are masked.
 - Each owner has its own monotonic employee version. Equal versions are duplicates and
   lower versions are stale, scoped by tenant and employee.
+- Event versions are 1-based; version 0 is rejected at the boundary because it collides
+  with the internal "no row yet" sentinel.
+- Payload values are coerced from JSON rather than cast, so a field may arrive as a
+  boolean, number, or string.
 - The outbox is delivered at least once. Consumers must be idempotent. Its included
   publisher is an in-process demonstration adapter.
 - A reconciliation missing more than the configured 30% of active employees is blocked
