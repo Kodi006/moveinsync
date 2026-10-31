@@ -284,4 +284,41 @@ class RosterEventApplierTest {
         assertThat(transResult.decision()).isEqualTo(Decision.APPLY);              // 50
         assertThat(transResult.newState().hrContentHash()).isEqualTo(hashBefore); // 51
     }
+
+    @Test
+    void booleanPayloadValue_isCoercedToString_notCast() {
+        // Bug regression: before the fix, a JSON boolean in a string field caused
+        // ClassCastException (Boolean cannot be cast to String), and the caller
+        // received REJECTED / PROCESSING_ERROR instead of a successful apply.
+
+        // Case 1: Boolean true → stored as "true"
+        Map<String, Object> boolPayload = new HashMap<>();
+        boolPayload.put("pickupPoint", "Gate Z");
+        boolPayload.put("specialAssistance", Boolean.TRUE);   // non-String value
+
+        var r1 = applier.apply(null, transportUpsert(1, boolPayload));
+        assertThat(r1.decision()).isEqualTo(Decision.APPLY);                      // 52
+        assertThat(r1.newState().specialAssistance()).isEqualTo("true");          // 53
+
+        // Case 2: String "true" → stored identically (no double-toString)
+        Map<String, Object> strPayload = new HashMap<>();
+        strPayload.put("pickupPoint", "Gate Z");
+        strPayload.put("specialAssistance", "true");
+
+        var r2 = applier.apply(null, transportUpsert(1, strPayload));
+        assertThat(r2.newState().specialAssistance()).isEqualTo("true");          // 54
+
+        // Case 3: null → field cleared (present-with-null semantics preserved)
+        var current = new Employee.Builder("T1", "E1")
+                .transportVersion(1).specialAssistance("old value")
+                .status(EmployeeStatus.ACTIVE)
+                .build();
+        Map<String, Object> nullPayload = new HashMap<>();
+        nullPayload.put("pickupPoint", "Gate Z");
+        nullPayload.put("specialAssistance", null);
+
+        var r3 = applier.apply(current, transportUpsert(2, nullPayload));
+        assertThat(r3.decision()).isEqualTo(Decision.APPLY);                      // 55
+        assertThat(r3.newState().specialAssistance()).isNull();                    // 56 — cleared
+    }
 }

@@ -19,8 +19,12 @@ public class RecordValidator {
         if (isBlank(tenantId) || isBlank(employeeId) || owner == null || eventType == null || version == null) {
             return ValidationResult.invalid("MISSING_REQUIRED_FIELD");
         }
-        if (version < 0) {
-            return ValidationResult.invalid("NEGATIVE_VERSION");
+        // Versions are 1-based. Zero is the "no row yet" sentinel used by resolveVersion:
+        // an inbound version 0 for an unknown employee compares equal to the stored 0 and
+        // is silently dropped as DUPLICATE — the employee is never created. Reject at the
+        // boundary instead so the caller gets a clear INVALID_VERSION error.
+        if (version < 1) {
+            return ValidationResult.invalid("INVALID_VERSION");
         }
         if (payload == null) {
             return ValidationResult.invalid("MISSING_REQUIRED_FIELD");

@@ -121,17 +121,31 @@ public class RosterEventApplier {
     private void applyPayloadFields(Employee.Builder b, Map<String, Object> payload) {
         // containsKey distinguishes "key absent" from "key present with null value".
         // We cannot use getOrDefault here because default would hide the null case.
-        if (payload.containsKey("name"))              b.name((String) payload.get("name"));
-        if (payload.containsKey("email"))             b.email((String) payload.get("email"));
-        if (payload.containsKey("managerId"))         b.managerId((String) payload.get("managerId"));
-        if (payload.containsKey("officeCode"))        b.officeCode((String) payload.get("officeCode"));
+        if (payload.containsKey("name"))              b.name(asString(payload.get("name")));
+        if (payload.containsKey("email"))             b.email(asString(payload.get("email")));
+        if (payload.containsKey("managerId"))         b.managerId(asString(payload.get("managerId")));
+        if (payload.containsKey("officeCode"))        b.officeCode(asString(payload.get("officeCode")));
         if (payload.containsKey("status")) {
             Object v = payload.get("status");
             // EmployeeStatus.valueOf parses the string name of the enum constant.
             // In C++ terms: like casting an int to an enum after checking the range.
             b.status(v == null ? null : EmployeeStatus.valueOf(v.toString()));
         }
-        if (payload.containsKey("pickupPoint"))       b.pickupPoint((String) payload.get("pickupPoint"));
-        if (payload.containsKey("specialAssistance")) b.specialAssistance((String) payload.get("specialAssistance"));
+        if (payload.containsKey("pickupPoint"))       b.pickupPoint(asString(payload.get("pickupPoint")));
+        if (payload.containsKey("specialAssistance")) b.specialAssistance(asString(payload.get("specialAssistance")));
+    }
+
+    /**
+     * Coerces a payload value to {@code String} rather than hard-casting.
+     *
+     * <p>JSON deserialisation produces {@code Map<String, Object>} where a field the
+     * client sent as a boolean or number arrives as {@code Boolean} or {@code Number},
+     * not {@code String}.  A hard cast would throw {@link ClassCastException} and turn
+     * a valid request into a {@code PROCESSING_ERROR}.  {@code toString()} handles every
+     * non-null type correctly.  Null is preserved: a present-with-null value means
+     * "clear this field" and must stay distinguishable from an absent key.
+     */
+    private static String asString(Object v) {
+        return v == null ? null : v.toString();
     }
 }

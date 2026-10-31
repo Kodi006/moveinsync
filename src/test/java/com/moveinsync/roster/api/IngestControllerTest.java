@@ -61,4 +61,57 @@ class IngestControllerTest {
         return new RosterEventRequest("tenant-api", employeeId, FieldOwner.HR,
                 1, EventType.UPSERT, payload);
     }
+
+    @Test
+    void versionBoundary_zeroIsRejected_nullIsMissingField_oneApplies() throws Exception {
+        // version = 0: collides with the "no row yet" sentinel — must be rejected
+        // at the boundary rather than silently dropped as DUPLICATE.
+        IngestBatchRequest batchZero = new IngestBatchRequest(List.of(
+                new RosterEventRequest("tenant-api", "v-zero", FieldOwner.HR,
+                        0, EventType.UPSERT,
+                        Map.of("name", "Zero", "email", "z@example.test", "officeCode", "BLR"))));
+
+        mvc.perform(post("/api/v1/roster/events")
+                        .header("X-API-Key", "api-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(batchZero)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.results[0].outcome").value("REJECTED"))
+                .andExpect(jsonPath("$.results[0].reason").value("INVALID_VERSION"));
+
+        assertThat(jdbc.queryForObject(
+                "SELECT COUNT(*) FROM employee WHERE employee_id = 'v-zero'", Integer.class))
+                .isZero();  // employee must NOT have been created
+
+        // version = null: missing required field — distinct error code from version = 0.
+        IngestBatchRequest batchNull = new IngestBatchRequest(List.of(
+                new RosterEventRequest("tenant-api", "v-null", FieldOwner.HR,
+                        null, EventType.UPSERT,
+                        Map.of("name", "Null", "email", "n@example.test", "officeCode", "BLR"))));
+
+        mvc.perform(post("/api/v1/roster/events")
+                        .header("X-API-Key", "api-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(batchNull)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.results[0].outcome").value("REJECTED"))
+                .andExpect(jsonPath("$.results[0].reason").value("MISSING_REQUIRED_FIELD"));
+
+        // version = 1 for a genuinely new employee: must APPLY and persist the row.
+        IngestBatchRequest batchOne = new IngestBatchRequest(List.of(
+                new RosterEventRequest("tenant-api", "v-one", FieldOwner.HR,
+                        1, EventType.UPSERT,
+                        Map.of("name", "One", "email", "one@example.test", "officeCode", "BLR"))));
+
+        mvc.perform(post("/api/v1/roster/events")
+                        .header("X-API-Key", "api-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(batchOne)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.results[0].outcome").value("APPLY"));
+
+        assertThat(jdbc.queryForObject(
+                "SELECT COUNT(*) FROM employee WHERE employee_id = 'v-one'", Integer.class))
+                .isEqualTo(1);
+    }
 }
