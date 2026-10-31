@@ -46,4 +46,3 @@ roster:
       tenant-b-admin: "tenant-b:ADMIN"
   reconciliation:
     safety-brake-threshold: 0.30
-    min-row-floor: 1000
